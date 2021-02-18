@@ -13,13 +13,18 @@
 ## CONFIG SECTION
 ###########################################################
 
-# version 2021/01/05 01
+# version 2021/01/22 01
 
-readonly myversion=83
+readonly myversion=86
 
 #
 # Major Changes (for details see Github):
 #
+# - V86 (Johannes)
+#   - added cleanup script
+#
+# - V85
+#   - increased kippo batch size
 #
 # - V84 (Freek)
 #   - fixed bug in IPv6 disabling in openSUSE
@@ -999,8 +1004,8 @@ if [ "$interface" == "" ]; then
 fi
 
 # list of valid interfaces
-drun "ip link show | grep '^[0-9]' | cut -f2 -d':' | tr -d '\n' | sed 's/^ //'"
-validifs=$(ip link show | grep '^[0-9]' | cut -f2 -d':' | tr -d '\n' | sed 's/^ //')
+drun "ip link show | grep '^[0-9]' | cut -f2 -d':' | cut -f1 -d'@' | tr -d '\n' | sed 's/^ //'"
+validifs=$(ip link show | grep '^[0-9]' | cut -f2 -d':' | cut -f1 -d'@' | tr -d '\n' | sed 's/^ //')
 
 # get honeypot external IPv4 address
 honeypotip=$(curl -s https://www4.dshield.org/api/myip?json | jq .ip | tr -d '"')
@@ -1501,6 +1506,7 @@ run "mkdir -p ${DSHIELDDIR}"
 do_copy $progdir/../srv/dshield/fwlogparser.py ${DSHIELDDIR} 700
 do_copy $progdir/../srv/dshield/weblogsubmit.py ${DSHIELDDIR} 700
 do_copy $progdir/status.sh ${DSHIELDDIR} 700
+do_copy $progdir/cleanup.sh ${DSHIELDDIR} 700
 do_copy $progdir/../srv/dshield/DShield.py ${DSHIELDDIR} 700
 
 # check: automatic updates allowed?
@@ -2029,3 +2035,6 @@ outlog "   Run the script 'status.sh' (but reboot first!)"
 outlog "   or check https://isc.sans.edu/myreports.sh (after logging in)"
 outlog
 outlog " for help, check our slack channel: https://isc.sans.edu/slack "
+outlog
+outlog " In case you are low in disk space, run /srv/dshield/cleanup.sh "
+outlog " This will delete some backups and logs "
